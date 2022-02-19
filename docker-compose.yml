@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  moneybags:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: moneybags
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    ports:
+      - "50055:8080"
+    environment:
+      TZ: America/Chicago
+      MONEYBAGS_PG_HOST: moneybags_postgres
+      MONEYBAGS_PG_USER: moneybags
+      MONEYBAGS_PG_PASS: moneybagspassword
+      MONEYBAGS_LOG_LEVEL: "TRACE"
+  postgres:
+    image: postgres:14
+    container_name: moneybags_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=moneybags
+      - POSTGRES_PASSWORD=moneybagspassword
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
