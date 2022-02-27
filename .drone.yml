@@ -14,6 +14,7 @@ steps:
   - name: test
     image: golang:1.16
     commands:
+      - go install github.com/golang/mock/mockgen@v1.6.0
       - make test
 
   - name: build
