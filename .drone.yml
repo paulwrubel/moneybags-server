@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: photolum
+name: moneybags-server
 
 clone:
   disable: true
@@ -11,16 +11,15 @@ steps:
     commands:
       - git clone --single-branch --branch $DRONE_SOURCE_BRANCH --depth=1 $DRONE_GIT_HTTP_URL .
 
+  - name: test
+    image: golang:1.16
+    commands:
+      - make test
+
   - name: build
     image: golang:1.16
     commands:
       - make build
-    when:
-      branch:
-        - main
-      event:
-        - push
-        - pull_request
 
   - name: publish-dev
     image: plugins/docker
@@ -29,41 +28,24 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo: paulwrubel/video-download-agent
+      repo: paulwrubel/moneybags-server
       tags:
-        - ${DRONE_BRANCH}
-    when:
-      branch:
-        exclude:
-          - main
-      event:
-        - push
-
-  - name: publish-stage
-    image: plugins/docker
-    settings:
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      repo: paulwrubel/video-download-agent
-      tags:
-        - stage
-        - ${DRONE_BRANCH}
+        - dev
+        - ${DRONE_COMMIT_SHA:0:7}
     when:
       branch:
         - main
       event:
         - push
 
-  - name: publish-tag
+  - name: publish
     image: plugins/docker
     settings:
       username:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo: paulwrubel/video-download-agent
+      repo: paulwrubel/moneybags-server
       tags:
         - latest
         - ${DRONE_TAG##v}
