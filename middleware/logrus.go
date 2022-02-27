@@ -1,4 +1,4 @@
-package routing
+package middleware
 
 import (
 	"net/http"
@@ -25,7 +25,7 @@ func (lrw *logrusResponseWriter) WriteHeader(statusCode int) {
 	lrw.status = statusCode
 }
 
-func logrusMiddleware() mux.MiddlewareFunc {
+func Logrus() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			start := time.Now()

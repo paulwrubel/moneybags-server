@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"runtime"
 	"strings"
 
-	"github.com/paulwrubel/moneybags-server/constants"
-	"github.com/paulwrubel/moneybags-server/database"
+	"github.com/paulwrubel/moneybags-server/config"
 	"github.com/paulwrubel/moneybags-server/injection"
 	"github.com/paulwrubel/moneybags-server/routing"
 	log "github.com/sirupsen/logrus"
@@ -20,16 +18,12 @@ func main() {
 	log.Info("starting moneybags server")
 	log.Debugf("number of CPUs: %d", runtime.NumCPU())
 
-	dbInfo, err := getDBInfo()
+	appInfo, err := config.InitializeApp()
 	if err != nil {
-		log.WithError(err).Fatal("error getting db info")
+		log.WithError(err).Fatal("error initializing app")
 	}
-	db, err := database.InitDB(dbInfo)
-	if err != nil {
-		log.WithError(err).Fatal("error initializing db connection")
-	}
-	injector := &injection.PostgresInjector{
-		Database: db,
+	injector := &injection.Injector{
+		AppInfo: appInfo,
 	}
 
 	log.Info("starting API server")
@@ -64,26 +58,4 @@ func initLogger() {
 	default:
 		log.SetLevel(log.WarnLevel)
 	}
-}
-
-func getDBInfo() (*database.DBInfo, error) {
-	log.Info("getting DB info")
-	pgHost, isSet := os.LookupEnv(constants.PostgresHostnameEnvironmentKey)
-	if !isSet {
-		return nil, fmt.Errorf("environment variable %s not set", constants.PostgresHostnameEnvironmentKey)
-	}
-	pgUser, isSet := os.LookupEnv(constants.PostgresUsernameEnvironmentKey)
-	if !isSet {
-		return nil, fmt.Errorf("environment variable %s not set", constants.PostgresUsernameEnvironmentKey)
-	}
-	pgPass, isSet := os.LookupEnv(constants.PostgresPasswordEnvironmentKey)
-	if !isSet {
-		return nil, fmt.Errorf("environment variable %s not set", constants.PostgresPasswordEnvironmentKey)
-	}
-
-	return &database.DBInfo{
-		Host:     pgHost,
-		Username: pgUser,
-		Password: pgPass,
-	}, nil
 }

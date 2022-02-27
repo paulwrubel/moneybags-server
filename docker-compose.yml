@@ -16,7 +16,11 @@ services:
       MONEYBAGS_PG_HOST: moneybags_postgres
       MONEYBAGS_PG_USER: moneybags
       MONEYBAGS_PG_PASS: moneybagspassword
+      MONEYBAGS_JWT_ISSUER: moneybags
+      MONEYBAGS_JWT_RSA_PRIVATE_KEY_FILE: /etc/moneybags/jwt_private_key.pem
       MONEYBAGS_LOG_LEVEL: "TRACE"
+    volumes:
+      - ./secrets/private.pem:/etc/moneybags/jwt_private_key.pem
   postgres:
     image: postgres:14
     container_name: moneybags_postgres
