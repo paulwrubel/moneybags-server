@@ -32,7 +32,7 @@ steps:
       repo: paulwrubel/moneybags-server
       tags:
         - dev
-        - ${DRONE_COMMIT_SHA:0:7}
+        - ${DRONE_COMMIT_SHA:0:8}
     when:
       branch:
         - main
@@ -51,5 +51,7 @@ steps:
         - latest
         - ${DRONE_TAG##v}
     when:
+      branch:
+        - main
       event:
         - tag
